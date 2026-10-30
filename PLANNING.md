@@ -92,6 +92,12 @@ During the interactive design interview, each branch of the architecture and use
   - **Banner Dismissal & Auto-Hide**: Fixed `.hidden` utility so clicking `×` dismisses the safety banner cleanly. When caffeine intake is reset or safe (<70%), the banner automatically hides completely.
   - **Security Reset Challenge**: Instead of accidental one-click resets, clicking "Reset Today's Intake" (available in both Profile and Menu) opens a dedicated **Security Verification Modal** requiring the student to explicitly type the keyword **`RESET`** in capital letters to authorize the data wipe.
 
+### Decision 11: Task Reminders & Completion Notifications
+- **Agreed Decision**:
+  - **Task Added & Active Reminder**: Adding an academic task automatically triggers an in-app reminder toast notification with task details, due date, notes, and a gentle Web Audio chime, alongside native HTML5 browser system notifications.
+  - **Task Completion Celebration**: Marking a task as finished triggers a congratulatory notification showing live workload progress (e.g. `2 of 3 Completed (67%)`), celebratory audio feedback, and an all-tasks completed reward badge when reaching 100%.
+  - **Periodic Study Reminder Ticker**: Regular checks remind students of pending tasks due Today so academic deadlines stay top of mind while pacing coffee intake.
+
 ---
 
 ## 3. Mathematical Formulas & Scientific Models

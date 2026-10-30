@@ -21,11 +21,15 @@ CaffControl is a web-based application designed specifically for students to mon
 - Real-time display of current caffeine fraction (e.g. `75mg / 400mg`), percentage pill, mini progress bar, and student daily max target.
 - Photorealistic coffee bean hero backdrop matching the original design mockup.
 
-### 4. Today's Workload (Tasks & Notes)
+### 4. Today's Workload (Tasks, Reminders & Notifications)
 - Academic checklist tailored for student assignments, quizzes, and experiments.
 - Live progress indicator (e.g. `Assignments: 1 of 3 Completed` and progress bar).
 - Strike-through completion toggling and task deletion.
 - Modal to add new tasks with due date timelines (`Today`, `Tomorrow`, `This Week`) and subject categories (`Quiz`, `Activity`, `Experiment`, `Exam`).
+- **Interactive Notifications & Reminders**:
+  - **Task Added Reminder**: Instant in-app phone notification banner and chime alerting the student that their task and due date reminder are active.
+  - **Task Completion Celebration**: Congratulatory toast notification with live workload percentage update and audio chime when checking off a task, including a special badge when all tasks are complete.
+  - **Browser & Periodic Alerts**: Integrates native HTML5 Web Notifications and periodic reminders for pending assignments due today.
 
 ### 5. Coffee Presets & Custom Logging
 - One-click presets for popular student coffee drinks (Kopiko 3-in-1 sachet, Kopiko Lucky Day 7-Eleven bottle, Kapeng Barako, Espresso shot, Iced Caramel Latte, and Spanish Latte).

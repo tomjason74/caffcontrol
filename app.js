@@ -167,6 +167,10 @@
     emergencyMgDisplay: document.getElementById('emergencyMgDisplay'),
     acknowledgeEmergencyBtn: document.getElementById('acknowledgeEmergencyBtn'),
 
+    // Toast Container & Task Reminder
+    toastContainer: document.getElementById('toastContainer'),
+    taskReminderCheck: document.getElementById('taskReminderCheck'),
+
     // Security Verification Modal
     menuResetTodayBtn: document.getElementById('menuResetTodayBtn'),
     securityResetModal: document.getElementById('securityResetModal'),
@@ -230,6 +234,183 @@
       : `${Math.round(remainingHours * 60)} mins`;
 
     return { hours: remainingHours, text: formatted, status: 'Active Alertness' };
+  }
+
+  // --- AUDIO SYNTHESIS CHIMES (Subtle & Zero External Dependencies) ---
+  function playNotificationChime(type) {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      const now = ctx.currentTime;
+
+      if (type === 'reminder') {
+        // Soft ascending two-tone reminder chime: D5 (587Hz) -> A5 (880Hz)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+        gain.gain.setValueAtTime(0.06, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'completed') {
+        // Uplifting celebration triad: C5 (523Hz) -> E5 (659Hz) -> G5 (784Hz)
+        const notes = [523.25, 659.25, 783.99];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + (idx * 0.08));
+          gain.gain.setValueAtTime(0.07, now + (idx * 0.08));
+          gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.08) + 0.3);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + (idx * 0.08));
+          osc.stop(now + (idx * 0.08) + 0.3);
+        });
+      }
+    } catch (e) {
+      // Audio playback fails silently if blocked by user policy
+    }
+  }
+
+  // --- BROWSER NATIVE NOTIFICATIONS (HTML5 Notification API) ---
+  function sendBrowserNotification(title, body) {
+    try {
+      if (!('Notification' in window)) return;
+      if (Notification.permission === 'granted') {
+        new Notification(title, {
+          body,
+          icon: 'assets/coffee_beans_bg.jpg'
+        });
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            new Notification(title, {
+              body,
+              icon: 'assets/coffee_beans_bg.jpg'
+            });
+          }
+        }).catch(() => {});
+      }
+    } catch (e) {
+      // Graceful fallback
+    }
+  }
+
+  // --- IN-APP TOAST NOTIFICATION SYSTEM ---
+  function showToastNotification({ type = 'reminder', icon = '🔔', badge = 'REMINDER', title = '', message = '', note = '', duration = 4500 }) {
+    if (!el.toastContainer) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.innerHTML = `
+      <div class="toast-icon-wrap">
+        <span>${icon}</span>
+      </div>
+      <div class="toast-content">
+        <div class="toast-header-row">
+          <span class="toast-type-badge">${escapeHtml(badge)}</span>
+          <span class="toast-time">Just now</span>
+        </div>
+        <div class="toast-title">${escapeHtml(title)}</div>
+        <div class="toast-message">${escapeHtml(message)}</div>
+        ${note ? `<div class="toast-note">${escapeHtml(note)}</div>` : ''}
+      </div>
+      <button class="toast-dismiss-btn" title="Dismiss notification" aria-label="Dismiss notification">&times;</button>
+      <div class="toast-progress-bar">
+        <div class="toast-progress-fill" style="animation-duration: ${duration}ms;"></div>
+      </div>
+    `;
+
+    // Audio Chime
+    playNotificationChime(type);
+
+    // Auto dismiss countdown
+    let dismissTimeout;
+    const removeToast = () => {
+      clearTimeout(dismissTimeout);
+      toast.classList.add('closing');
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 280);
+    };
+
+    dismissTimeout = setTimeout(removeToast, duration);
+
+    // Dismiss Button
+    toast.querySelector('.toast-dismiss-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeToast();
+    });
+
+    // Hover pause
+    toast.addEventListener('mouseenter', () => {
+      clearTimeout(dismissTimeout);
+      const fill = toast.querySelector('.toast-progress-fill');
+      if (fill) fill.style.animationPlayState = 'paused';
+    });
+
+    toast.addEventListener('mouseleave', () => {
+      dismissTimeout = setTimeout(removeToast, 2000);
+      const fill = toast.querySelector('.toast-progress-fill');
+      if (fill) fill.style.animationPlayState = 'running';
+    });
+
+    // Keep at most 2 active toasts simultaneously to prevent screen obstruction
+    while (el.toastContainer.children.length >= 2) {
+      el.toastContainer.removeChild(el.toastContainer.firstChild);
+    }
+    el.toastContainer.appendChild(toast);
+  }
+
+  // Task Added & Reminder Notification
+  function triggerTaskAddedNotification(task) {
+    showToastNotification({
+      type: 'reminder',
+      icon: '🔔',
+      badge: 'Reminder Scheduled',
+      title: task.title,
+      message: `Due: ${task.due} • Category: ${task.category || 'Academic'}`,
+      note: task.notes ? `Note: "${task.notes}"` : 'Reminder active! Stay focused and monitor your coffee intake.',
+      duration: 4800
+    });
+
+    sendBrowserNotification(
+      `🔔 CaffControl: Task Reminder Scheduled`,
+      `"${task.title}" is due ${task.due}. Stay focused with your study goals!`
+    );
+  }
+
+  // Task Completed Notification
+  function triggerTaskCompletedNotification(task, newCompletedCount, totalTasks, newPercent) {
+    const isAllDone = totalTasks > 0 && newCompletedCount === totalTasks;
+
+    showToastNotification({
+      type: 'completed',
+      icon: isAllDone ? '🏆' : '🎉',
+      badge: isAllDone ? 'All Tasks Done!' : 'Task Completed',
+      title: isAllDone ? 'All Academic Tasks Finished! 🏆' : `Completed: ${task.title}`,
+      message: `Workload Progress: ${newCompletedCount} of ${totalTasks} completed (${newPercent}%).`,
+      note: isAllDone 
+        ? 'Outstanding effort today! Remember to hydrate with water and wind down caffeine.' 
+        : 'Great job! Check off your next goal and keep up the momentum.',
+      duration: 5000
+    });
+
+    sendBrowserNotification(
+      isAllDone ? `🏆 All Tasks Completed!` : `🎉 Task Finished: ${task.title}`,
+      `Workload progress: ${newCompletedCount} of ${totalTasks} (${newPercent}%). Great work!`
+    );
   }
 
   // --- RENDER APPLICATION ---
@@ -438,9 +619,18 @@
       // Checkbox listener
       const checkbox = li.querySelector('.task-checkbox');
       checkbox.addEventListener('change', () => {
+        const wasCompleted = task.completed;
         task.completed = checkbox.checked;
         saveState();
         renderApp();
+
+        // Trigger notification and celebration when marked as done
+        if (!wasCompleted && checkbox.checked) {
+          const total = state.tasks.length;
+          const completedCount = state.tasks.filter(t => t.completed).length;
+          const progressPercent = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+          triggerTaskCompletedNotification(task, completedCount, total, progressPercent);
+        }
       });
 
       // Delete listener
@@ -585,6 +775,7 @@
     const due = el.taskDueInput.value;
     const category = el.taskCategoryInput.value;
     const notes = el.taskNotesInput.value.trim();
+    const isReminderEnabled = el.taskReminderCheck ? el.taskReminderCheck.checked : true;
 
     if (!title) return;
 
@@ -594,6 +785,8 @@
       due,
       category,
       notes,
+      reminder: isReminderEnabled,
+      createdAt: Date.now(),
       completed: false
     };
 
@@ -601,7 +794,13 @@
     saveState();
     renderApp();
     el.taskForm.reset();
+    if (el.taskReminderCheck) el.taskReminderCheck.checked = true;
     closeAllModals();
+
+    // Trigger Notification & Reminder
+    if (isReminderEnabled) {
+      triggerTaskAddedNotification(newTask);
+    }
   });
 
   // Profile Modal
@@ -738,6 +937,34 @@
     if (el.heroBoostDuration) el.heroBoostDuration.textContent = boost.text;
     if (el.heroBoostSubtext) el.heroBoostSubtext.textContent = boost.status;
   }, 30000);
+
+  // Periodic Reminder Ticker for Pending Tasks Due Today (every 15 mins)
+  let lastStudyReminderTime = Date.now();
+  setInterval(() => {
+    const now = Date.now();
+    if (now - lastStudyReminderTime < 15 * 60 * 1000) return;
+
+    const pendingTodayTasks = (state.tasks || []).filter(t => !t.completed && (t.due || '').toLowerCase().includes('today'));
+    if (pendingTodayTasks.length > 0) {
+      lastStudyReminderTime = now;
+      const firstTask = pendingTodayTasks[0];
+      showToastNotification({
+        type: 'reminder',
+        icon: '⏰',
+        badge: 'Study Reminder',
+        title: `Task Due Today: ${firstTask.title}`,
+        message: pendingTodayTasks.length > 1
+          ? `You have ${pendingTodayTasks.length} pending academic tasks due today. Remember to stay focused and pace your coffee!`
+          : `Don't forget to complete "${firstTask.title}" today!`,
+        note: 'Keep your study sessions focused and stay within safe caffeine limits.',
+        duration: 5000
+      });
+      sendBrowserNotification(
+        `⏰ CaffControl: Task Due Today`,
+        `Don't forget: "${firstTask.title}" is due today!`
+      );
+    }
+  }, 60000);
 
   // Initialize App on DOM Ready
   renderApp();

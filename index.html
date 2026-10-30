@@ -76,6 +76,9 @@
         </button>
       </nav>
 
+      <!-- Toast Notification Container (In-App Alert & Reminder Toasts) -->
+      <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
       <!-- Scrollable App Content -->
       <div class="app-content-scroll" id="appContentScroll">
 
@@ -409,6 +412,16 @@
           <div class="form-group">
             <label for="taskNotesInput">Notes / Details (Optional)</label>
             <input type="text" id="taskNotesInput" placeholder="e.g. Chapter 4 review, bring scientific calculator">
+          </div>
+
+          <div class="form-group task-reminder-row">
+            <label class="task-reminder-checkbox-label" for="taskReminderCheck">
+              <input type="checkbox" id="taskReminderCheck" checked>
+              <span class="reminder-label-text">
+                <strong>🔔 Set Active Reminder</strong>
+                <small>Send notifications &amp; alert when task is due or active</small>
+              </span>
+            </label>
           </div>
 
           <div class="modal-actions">

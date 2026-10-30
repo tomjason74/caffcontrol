@@ -1655,6 +1655,256 @@ body {
 }
 
 /* ===================================================
+   TOAST NOTIFICATION & REMINDER SYSTEM
+   =================================================== */
+
+.toast-container {
+  position: absolute;
+  top: 58px;
+  left: 12px;
+  right: 12px;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast-notification {
+  pointer-events: auto;
+  position: relative;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px 14px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-shadow: 0 10px 28px rgba(35, 18, 10, 0.22), 0 2px 6px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(61, 38, 26, 0.12);
+  overflow: hidden;
+  transform: translateY(-24px) scale(0.96);
+  opacity: 0;
+  animation: toastSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.toast-notification.closing {
+  transform: translateY(-16px) scale(0.95);
+  opacity: 0;
+}
+
+/* Reminder variant */
+.toast-notification.toast-reminder {
+  border-left: 4px solid var(--color-caramel-accent);
+  background: linear-gradient(135deg, #fffaf5 0%, #ffffff 100%);
+}
+
+.toast-notification.toast-reminder .toast-icon-wrap {
+  background: #fdf2e7;
+  color: var(--color-caramel-accent);
+  border: 1px solid #fed7aa;
+}
+
+.toast-notification.toast-reminder .toast-type-badge {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+/* Completed variant */
+.toast-notification.toast-completed {
+  border-left: 4px solid var(--color-safe-green);
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.toast-notification.toast-completed .toast-icon-wrap {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.toast-notification.toast-completed .toast-type-badge {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.toast-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.toast-type-badge {
+  font-family: var(--font-main);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.toast-time {
+  font-size: 0.68rem;
+  color: #9c8577;
+  font-weight: 600;
+}
+
+.toast-title {
+  font-family: var(--font-main);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #2b170d;
+  line-height: 1.25;
+  margin-bottom: 2px;
+  word-break: break-word;
+}
+
+.toast-message {
+  font-size: 0.78rem;
+  color: #5c4538;
+  line-height: 1.35;
+}
+
+.toast-note {
+  margin-top: 4px;
+  padding: 3px 8px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 6px;
+  font-size: 0.72rem;
+  color: #785a49;
+  font-style: italic;
+}
+
+.toast-dismiss-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: #9c8577;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color var(--transition-fast);
+}
+
+.toast-dismiss-btn:hover {
+  color: #3d2417;
+}
+
+.toast-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.toast-progress-fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  animation: toastProgress 4.5s linear forwards;
+}
+
+.toast-reminder .toast-progress-fill {
+  background: var(--color-caramel-accent);
+}
+
+.toast-completed .toast-progress-fill {
+  background: var(--color-safe-green);
+}
+
+@keyframes toastSlideDown {
+  0% {
+    transform: translateY(-24px) scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes toastProgress {
+  0% { transform: scaleX(1); }
+  100% { transform: scaleX(0); }
+}
+
+/* Modal Reminder Toggle */
+.task-reminder-row {
+  margin-top: -4px;
+  margin-bottom: 12px;
+}
+
+.task-reminder-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  background: #fbf7f3;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px dashed #decac0;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.task-reminder-checkbox-label:hover {
+  background: #f5ebe1;
+  border-color: #c87a32;
+}
+
+.task-reminder-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #c87a32;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.reminder-label-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.reminder-label-text strong {
+  font-size: 0.82rem;
+  color: #3b2216;
+}
+
+.reminder-label-text small {
+  font-size: 0.7rem;
+  color: #836757;
+}
+
+/* Full Width View Variant Adjustment for Toasts */
+.app-shell.full-width .toast-container {
+  max-width: 500px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: 90%;
+}
+
+/* ===================================================
    RESPONSIVE QUERIES
    =================================================== */
 
