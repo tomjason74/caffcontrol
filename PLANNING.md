@@ -70,8 +70,8 @@ During the interactive design interview, each branch of the architecture and use
   - *Kapeng Barako (Brewed Liberica Mug)*: **120mg**
   - *Espresso Shot (Single)*: **64mg**
   - *Iced Caramel Latte (16oz)*: **75mg**
-  - *Cobra / Sting Energy Drink*: **80mg**
-  - *Custom Drink Logger*: Any custom name and mg.
+  - *Spanish Latte (Sweetened Espresso & Milk)*: **95mg**
+  - *Custom Coffee Logger*: Any custom coffee name and mg.
 
 ### Decision 8: Boost Duration & Caffeine Decay Calculation
 - **Question**: How should the `Est. Boost Duration` be calculated and presented?

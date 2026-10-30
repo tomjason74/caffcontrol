@@ -566,7 +566,7 @@
     const name = el.customDrinkName.value.trim();
     const mg = el.customDrinkMg.value.trim();
     if (!name || !mg) return;
-    logCoffee(name, mg, 'Custom Drink');
+    logCoffee(name, mg, 'Custom Coffee');
     el.customDrinkForm.reset();
   });
 
