@@ -1,0 +1,16 @@
+{
+  "name": "caffcontrol",
+  "version": "1.0.0",
+  "description": "Student Caffeine Intake Meter & Academic Workload Tracker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "caffeine",
+    "tracker",
+    "student"
+  ],
+  "author": "Tom Jason D. Umali",
+  "license": "ISC"
+}

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CaffControl - Student Caffeine Intake & Workload Tracker</title>
+  <meta name="description" content="A web-based application for students to track caffeine intake percentage, stay within safe daily limits, monitor active boost duration, and manage academic workloads.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Screen Frame / Presentation Wrapper for Desktop Viewers -->
+  <div class="presentation-wrapper" id="presentationWrapper">
+    
+    <!-- View Switcher Toggle for Desktop Preview -->
+    <header class="desktop-banner" id="desktopBanner">
+      <div class="desktop-banner-content">
+        <div class="desktop-badge">
+          <span class="pulse-dot"></span>
+          <span>CaffControl • Student Health & Academic Productivity App</span>
+        </div>
+        <div class="view-toggle-group">
+          <span class="toggle-label">Device Mode:</span>
+          <button id="viewMobileBtn" class="toggle-btn active" title="Switch to Mobile Frame View">📱 Mobile Frame</button>
+          <button id="viewFullBtn" class="toggle-btn" title="Switch to Full Width View">💻 Full Width</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Mobile Shell Container -->
+    <main class="app-shell" id="appShell">
+
+      <!-- Top Phone Status Bar (Mockup Aesthetic) -->
+      <div class="status-bar" id="statusBar">
+        <span class="status-time" id="statusClock">10:10</span>
+        <div class="status-notch"></div>
+        <div class="status-icons">
+          <svg class="status-svg" viewBox="0 0 24 24" width="16" height="16">
+            <path fill="currentColor" d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 18.25c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l.64-.64C7.93 20.26 9.88 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+          </svg>
+          <svg class="status-svg" viewBox="0 0 24 24" width="16" height="16">
+            <path fill="currentColor" d="M12 4C7.31 4 3.07 5.9 0 8.98L12 21 24 8.98C20.93 5.9 16.69 4 12 4zm0 3.5c3.55 0 6.8 1.34 9.27 3.56L12 19.34 2.73 11.06C5.2 8.84 8.45 7.5 12 7.5z"/>
+          </svg>
+          <svg class="status-svg" viewBox="0 0 24 24" width="18" height="18">
+            <path fill="currentColor" d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- App Header Nav -->
+      <nav class="app-nav">
+        <button class="nav-btn avatar-btn" id="openProfileBtn" aria-label="Open Student Profile and Limit Settings">
+          <div class="avatar-circle">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          </div>
+        </button>
+
+        <div class="brand-logo">
+          <div class="coffee-logo-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24">
+              <path fill="currentColor" d="M2,21H20V19H2M20,8H18V5H20M20,3H4V13A4,4 0 0,0 8,17H14A4,4 0 0,0 18,13V10H20A2,2 0 0,0 22,8V5C22,3.89 21.1,3 20,3Z"/>
+            </svg>
+          </div>
+          <span class="brand-name">Caff<span class="brand-highlight">Control</span></span>
+        </div>
+
+        <button class="nav-btn menu-btn" id="openMenuBtn" aria-label="Open Menu and History">
+          <svg viewBox="0 0 24 24" width="24" height="24">
+            <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>
+          </svg>
+        </button>
+      </nav>
+
+      <!-- Scrollable App Content -->
+      <div class="app-content-scroll" id="appContentScroll">
+
+        <!-- Banner Alert when reaching / nearing limit -->
+        <div class="safety-alert-banner hidden" id="safetyAlertBanner">
+          <div class="alert-icon-box">⚠️</div>
+          <div class="alert-text-box">
+            <strong id="alertTitle">Safety Threshold Reached!</strong>
+            <p id="alertDescription">You have consumed 100% of your safe caffeine intake. Switch to water.</p>
+          </div>
+          <button class="alert-dismiss-btn" id="dismissAlertBtn" aria-label="Dismiss alert">&times;</button>
+        </div>
+
+        <!-- HERO / QUICK-STATS CARD (Matching mockup photo) -->
+        <section class="quick-stats-hero" id="quickStatsHero">
+          <div class="hero-overlay"></div>
+          
+          <div class="hero-content">
+            <div class="hero-header-row">
+              <h1 class="student-greeting" id="greetingName">HI, ALEX!</h1>
+              <span class="quick-stats-badge">Quick-Stats</span>
+            </div>
+
+            <div class="stats-grid">
+              
+              <!-- Stat 1: Caffeine Limit (e.g. 75mg / 400mg, 15%) -->
+              <div class="stat-card" id="cardCaffeineLimit">
+                <div class="stat-card-title">Caffeine Limit:</div>
+                <div class="stat-card-value">
+                  <span id="heroIntakeFraction">75mg</span><span class="stat-card-divider">/</span><span id="heroSafeCeiling">400mg</span>
+                </div>
+                <div class="stat-pill-row">
+                  <span class="stat-percent-pill" id="heroPercentPill">15%</span>
+                  <div class="stat-mini-bar-track">
+                    <div class="stat-mini-bar-fill" id="heroMiniBarFill" style="width: 15%;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Stat 2: Est. Boost Duration (e.g. 3.5 hrs) -->
+              <div class="stat-card" id="cardBoostDuration">
+                <div class="stat-card-title">Est. Boost Duration:</div>
+                <div class="stat-card-value boost-value" id="heroBoostDuration">3.5 hrs</div>
+                <div class="stat-subtext" id="heroBoostSubtext">Active Alertness</div>
+              </div>
+
+              <!-- Stat 3: Daily Max (e.g. 215mg Daily Max) -->
+              <div class="stat-card" id="cardDailyMax">
+                <div class="stat-card-value max-value" id="heroDailyMax">215mg</div>
+                <div class="stat-card-title">Daily Max</div>
+                <div class="stat-subtext">Student Target</div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- TODAY'S WORKLOAD (Task / Notes Section) -->
+        <section class="workload-section" id="workloadSection">
+          <div class="workload-card">
+            
+            <div class="workload-header">
+              <div class="workload-title-group">
+                <h2 class="workload-title">Today's Workload:</h2>
+                <span class="workload-summary-text" id="workloadSummaryText">Assignments: 1 of 3 Completed</span>
+              </div>
+              <div class="workload-progress-badge" id="workloadProgressBadge">33%</div>
+            </div>
+
+            <!-- Workload Progress Bar -->
+            <div class="workload-bar-track">
+              <div class="workload-bar-fill" id="workloadBarFill" style="width: 33%;"></div>
+            </div>
+
+            <!-- Task Checklist Items -->
+            <ul class="task-list" id="taskList" aria-label="Academic tasks checklist">
+              <!-- Dynamically populated by JS -->
+            </ul>
+
+            <!-- Add New Task Button (Matching mockup: "Add New Task +") -->
+            <button class="add-task-btn" id="openAddTaskBtn">
+              <span>Add New Task</span>
+              <span class="add-plus-icon">+</span>
+            </button>
+
+          </div>
+        </section>
+
+        <!-- CAFFEINE INTAKE METER SECTION (Matching circular arc mockup) -->
+        <section class="meter-section" id="meterSection">
+          
+          <div class="meter-container" id="meterContainer">
+            
+            <!-- SVG Circular Gauge Meter -->
+            <div class="gauge-wrapper">
+              <svg class="gauge-svg" viewBox="0 0 280 280" id="gaugeSvg">
+                <defs>
+                  <!-- Safe Gradient -->
+                  <linearGradient id="safeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#4caf50" />
+                    <stop offset="100%" stop-color="#8bc34a" />
+                  </linearGradient>
+                  <!-- Standard Coffee Amber Gradient -->
+                  <linearGradient id="coffeeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#d48c46" />
+                    <stop offset="50%" stop-color="#c47833" />
+                    <stop offset="100%" stop-color="#8d4b1a" />
+                  </linearGradient>
+                  <!-- Caution Orange Gradient -->
+                  <linearGradient id="cautionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ff9800" />
+                    <stop offset="100%" stop-color="#f57c00" />
+                  </linearGradient>
+                  <!-- Danger Red Gradient -->
+                  <linearGradient id="dangerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ff5252" />
+                    <stop offset="100%" stop-color="#d50000" />
+                  </linearGradient>
+                  <filter id="glowFilter" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="6" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+
+                <!-- Track Arc Background -->
+                <circle class="gauge-track" cx="140" cy="140" r="110" />
+
+                <!-- Active Progress Arc -->
+                <circle class="gauge-progress" id="gaugeProgressCircle" cx="140" cy="140" r="110" />
+              </svg>
+
+              <!-- Central Meter Content -->
+              <div class="meter-center-content">
+                <div class="meter-percent-display" id="meterPercent">15%</div>
+                <div class="meter-mg-display" id="meterMg">75mg</div>
+                
+                <!-- Animated Coffee Cup Graphic with Steam -->
+                <div class="cup-graphic-container">
+                  <div class="steam-container">
+                    <span class="steam-line steam-1"></span>
+                    <span class="steam-line steam-2"></span>
+                    <span class="steam-line steam-3"></span>
+                  </div>
+                  <div class="cup-graphic">
+                    <svg viewBox="0 0 36 36" width="36" height="36" id="cupIconSvg">
+                      <path fill="currentColor" d="M6,10H26V19A6,6 0 0,1 20,25H12A6,6 0 0,1 6,19V10M27,12V16H29A2,2 0 0,0 31,14A2,2 0 0,0 29,12H27M4,27H28V29H4V27Z"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="meter-target-badge" id="meterTargetBadge">215mg Daily Max</div>
+              </div>
+
+            </div>
+
+            <h3 class="meter-section-title">Caffeine Intake Meter</h3>
+
+            <!-- Safe Status Indicator Caption -->
+            <div class="intake-advice-pill" id="intakeAdvicePill">
+              <span class="pill-dot" id="adviceDot"></span>
+              <span id="adviceText">Safe Intake Level for Study Focus</span>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- Bottom Spacing for Floating Bar -->
+        <div class="bottom-spacer"></div>
+
+      </div>
+
+      <!-- BOTTOM ACTION BAR: + Add Coffee -->
+      <footer class="bottom-action-bar">
+        <button class="add-coffee-main-btn" id="openAddCoffeeBtn" aria-label="Add and Log Coffee">
+          <div class="coffee-btn-icon">
+            <svg viewBox="0 0 24 24" width="22" height="22">
+              <path fill="currentColor" d="M2,21H20V19H2M20,8H18V5H20M20,3H4V13A4,4 0 0,0 8,17H14A4,4 0 0,0 18,13V10H20A2,2 0 0,0 22,8V5C22,3.89 21.1,3 20,3Z"/>
+            </svg>
+          </div>
+          <span class="coffee-btn-text">Add Coffee</span>
+          <span class="coffee-btn-plus">+</span>
+        </button>
+      </footer>
+
+    </main>
+
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. ADD COFFEE MODAL (Filipino Student Library + Custom mg) -->
+  <div class="modal-backdrop hidden" id="addCoffeeModal" role="dialog" aria-modal="true" aria-labelledby="addCoffeeTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">☕</span>
+          <h2 class="modal-title" id="addCoffeeTitle">Log Coffee Intake</h2>
+        </div>
+        <button class="modal-close-btn" id="closeAddCoffeeBtn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-subtitle">Pick from popular student favorites or enter custom caffeine mg:</p>
+
+        <!-- Drink Presets Grid -->
+        <div class="presets-grid" id="presetsGrid">
+
+          <button class="preset-card" data-name="Kopiko 3-in-1 (Sachet)" data-mg="65" data-category="Instant Sachet">
+            <div class="preset-icon-wrap">☕</div>
+            <div class="preset-info">
+              <strong class="preset-name">Kopiko 3-in-1</strong>
+              <span class="preset-desc">Instant Coffee Sachet</span>
+            </div>
+            <div class="preset-mg-badge">+65mg</div>
+          </button>
+
+          <button class="preset-card highlighted" data-name="Kopiko Lucky Day" data-mg="150" data-category="Bottled RTD">
+            <div class="preset-icon-wrap">🧃</div>
+            <div class="preset-info">
+              <strong class="preset-name">Kopiko Lucky Day</strong>
+              <span class="preset-desc">7-Eleven Bottled Ready-to-Drink</span>
+            </div>
+            <div class="preset-mg-badge">+150mg</div>
+          </button>
+
+          <button class="preset-card" data-name="Kapeng Barako" data-mg="120" data-category="Brewed">
+            <div class="preset-icon-wrap">🫖</div>
+            <div class="preset-info">
+              <strong class="preset-name">Kapeng Barako</strong>
+              <span class="preset-desc">Philippine Liberica Brew (Mug)</span>
+            </div>
+            <div class="preset-mg-badge">+120mg</div>
+          </button>
+
+          <button class="preset-card" data-name="Espresso Shot" data-mg="64" data-category="Espresso">
+            <div class="preset-icon-wrap">⚡</div>
+            <div class="preset-info">
+              <strong class="preset-name">Espresso Shot</strong>
+              <span class="preset-desc">Single Shot (Pure Caffeine)</span>
+            </div>
+            <div class="preset-mg-badge">+64mg</div>
+          </button>
+
+          <button class="preset-card" data-name="Iced Caramel Latte" data-mg="75" data-category="Cafe Iced">
+            <div class="preset-icon-wrap">🧊</div>
+            <div class="preset-info">
+              <strong class="preset-name">Iced Caramel Latte</strong>
+              <span class="preset-desc">16oz Iced Coffee Drink</span>
+            </div>
+            <div class="preset-mg-badge">+75mg</div>
+          </button>
+
+          <button class="preset-card" data-name="Cobra / Sting Energy" data-mg="80" data-category="Energy Drink">
+            <div class="preset-icon-wrap">🔋</div>
+            <div class="preset-info">
+              <strong class="preset-name">Cobra / Sting Energy</strong>
+              <span class="preset-desc">Bottled Energy Boost</span>
+            </div>
+            <div class="preset-mg-badge">+80mg</div>
+          </button>
+
+        </div>
+
+        <!-- Custom Caffeine Input Section -->
+        <div class="custom-drink-section">
+          <div class="custom-divider">
+            <span>OR CUSTOM LOG</span>
+          </div>
+
+          <form id="customDrinkForm" class="custom-form">
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="customDrinkName">Drink Description</label>
+                <input type="text" id="customDrinkName" placeholder="e.g. Americano, Matcha, Mountain Dew" required>
+              </div>
+              <div class="form-group flex-1">
+                <label for="customDrinkMg">Caffeine (mg)</label>
+                <input type="number" id="customDrinkMg" placeholder="e.g. 95" min="5" max="400" required>
+              </div>
+            </div>
+            <button type="submit" class="submit-action-btn">Log Custom Drink</button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ADD TASK MODAL -->
+  <div class="modal-backdrop hidden" id="addTaskModal" role="dialog" aria-modal="true" aria-labelledby="addTaskTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">📝</span>
+          <h2 class="modal-title" id="addTaskTitle">Add Academic Task</h2>
+        </div>
+        <button class="modal-close-btn" id="closeAddTaskBtn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="taskForm" class="task-form">
+          <div class="form-group">
+            <label for="taskTitleInput">Task / Subject Title</label>
+            <input type="text" id="taskTitleInput" placeholder="e.g. Chemistry - Experiment Lab Report" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="taskDueInput">Due Timeline</label>
+              <select id="taskDueInput">
+                <option value="Today">Today</option>
+                <option value="Tomorrow" selected>Tomorrow</option>
+                <option value="This Week">This Week</option>
+                <option value="Due Soon">Due Soon</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="taskCategoryInput">Category</label>
+              <select id="taskCategoryInput">
+                <option value="Quiz">Quiz</option>
+                <option value="Activity" selected>Activity</option>
+                <option value="Experiment">Experiment</option>
+                <option value="Exam">Exam / Review</option>
+                <option value="Assignment">Assignment</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="taskNotesInput">Notes / Details (Optional)</label>
+            <input type="text" id="taskNotesInput" placeholder="e.g. Chapter 4 review, bring scientific calculator">
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel" id="cancelAddTaskBtn">Cancel</button>
+            <button type="submit" class="submit-action-btn">Save Task</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. STUDENT PROFILE & LIMITS SETTINGS MODAL -->
+  <div class="modal-backdrop hidden" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">👤</span>
+          <h2 class="modal-title" id="profileTitle">Student Profile & Settings</h2>
+        </div>
+        <button class="modal-close-btn" id="closeProfileBtn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="profileForm" class="profile-form">
+          <div class="form-group">
+            <label for="studentNameInput">Student Name</label>
+            <input type="text" id="studentNameInput" placeholder="Your name (e.g. Alex, Juan, Maria)" required>
+          </div>
+
+          <div class="form-group">
+            <label for="dailyMaxInput">Personal Daily Target Limit (mg)</label>
+            <input type="number" id="dailyMaxInput" min="50" max="400" placeholder="215" required>
+            <small class="field-hint">Default is <strong>215mg</strong> (recommended for students). Safe maximum health ceiling is 400mg.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="safeCeilingInput">Safe Upper Health Ceiling (mg)</label>
+            <input type="number" id="safeCeilingInput" min="100" max="500" value="400" required>
+            <small class="field-hint">Exceeding this triggers the glowing red safety alarm.</small>
+          </div>
+
+          <div class="settings-danger-zone">
+            <h4>Data Management</h4>
+            <div class="danger-btns-row">
+              <button type="button" class="btn-warning-outline" id="resetTodayBtn">Reset Today's Intake</button>
+              <button type="button" class="btn-danger-outline" id="restoreDefaultsBtn">Restore Defaults</button>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel" id="cancelProfileBtn">Cancel</button>
+            <button type="submit" class="submit-action-btn">Save Settings</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. MENU & LOG HISTORY MODAL -->
+  <div class="modal-backdrop hidden" id="menuModal" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">📋</span>
+          <h2 class="modal-title" id="menuTitle">Today's Coffee Logs</h2>
+        </div>
+        <button class="modal-close-btn" id="closeMenuBtn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="history-summary">
+          <div>Total Consumed: <strong id="historyTotalMg">75mg</strong></div>
+          <div>Entries: <span id="historyCount">1 drink</span></div>
+        </div>
+
+        <ul class="coffee-history-list" id="coffeeHistoryList">
+          <!-- Populated by JS -->
+        </ul>
+
+        <div class="safety-guide-card">
+          <h4>💡 Caffeine Safe Guidelines for Students:</h4>
+          <ul>
+            <li><strong>Up to 215mg:</strong> Safe sweet spot for study alertness.</li>
+            <li><strong>400mg:</strong> Maximum safe upper limit for healthy adults/teens.</li>
+            <li><strong>100%+ Red Alert:</strong> Triggers palpitations, anxiety, and crash. Always rehydrate with water!</li>
+          </ul>
+        </div>
+
+        <button type="button" class="btn-warning-outline" id="menuResetTodayBtn" style="width: 100%; margin-top: 12px; padding: 10px;">Reset Today's Intake</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. EMERGENCY 100% RED ALERT TOAST / POPUP -->
+  <div class="emergency-overlay hidden" id="emergencyOverlay">
+    <div class="emergency-card">
+      <div class="emergency-alarm-glow">🚨</div>
+      <h2>100% Safe Intake Reached!</h2>
+      <p>You have consumed <strong id="emergencyMgDisplay">215mg</strong> of caffeine, reaching your safe student threshold.</p>
+      
+      <div class="emergency-tips">
+        <div class="tip-item">💧 <strong>Hydrate:</strong> Drink at least 1-2 tall glasses of water now to flush caffeine.</div>
+        <div class="tip-item">🛑 <strong>Pause:</strong> Stop further coffee or energy drinks for the remainder of today.</div>
+        <div class="tip-item">🚶 <strong>Take a Walk:</strong> A quick 5-minute stretch or walk refreshes focus naturally.</div>
+      </div>
+
+      <button class="emergency-btn" id="acknowledgeEmergencyBtn">Understood, I'll Switch to Water!</button>
+    </div>
+  </div>
+
+  <!-- 6. SECURITY RESET VERIFICATION MODAL -->
+  <div class="modal-backdrop hidden" id="securityResetModal" role="dialog" aria-modal="true" aria-labelledby="securityResetTitle">
+    <div class="modal-card security-modal-card">
+      <div class="modal-header security-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">🔐</span>
+          <h2 class="modal-title" id="securityResetTitle">Security Verification</h2>
+        </div>
+        <button class="modal-close-btn" id="closeSecurityResetBtn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="security-warning-box">
+          <div class="security-warning-icon">⚠️</div>
+          <div class="security-warning-text">
+            <strong>Confirm Resetting Intake Data</strong>
+            <p>This action will permanently erase your logged caffeine intake for today (<strong id="securityResetMgText">75mg</strong>), clear your drink history, and reset your intake meter.</p>
+          </div>
+        </div>
+
+        <div class="security-input-section">
+          <label for="securityConfirmInput">To authorize this reset, type <strong>RESET</strong> in capital letters:</label>
+          <input type="text" id="securityConfirmInput" placeholder="Type RESET to confirm" autocomplete="off" autocorrect="off" autocapitalize="characters">
+          <p class="security-hint-text" id="securityHintText">Type RESET to activate the authorization button.</p>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="cancelSecurityResetBtn">Cancel</button>
+          <button type="button" class="btn-danger-confirm" id="confirmSecurityResetBtn" disabled>Authorize Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
