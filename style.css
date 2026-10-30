@@ -288,6 +288,26 @@ body {
   color: var(--color-caramel-accent);
 }
 
+.nav-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sound-btn {
+  color: #3d261a;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sound-btn.muted {
+  opacity: 0.6;
+}
+
 .menu-btn {
   color: #3d261a;
 }

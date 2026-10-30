@@ -10,6 +10,7 @@
     studentName: 'ALEX',
     dailyMaxMg: 215, // Student Daily Target (215mg Daily Max)
     safeCeilingMg: 400, // Maximum safe health ceiling (400mg)
+    soundEnabled: true, // Audio warnings and alarm sound FX
     currentCaffeineMg: 75, // Sample intake (matches 75mg in mockup)
     lastDrinkTime: Date.now() - (35 * 60 * 1000), // ~35 minutes ago
     drinks: [
@@ -171,6 +172,11 @@
     toastContainer: document.getElementById('toastContainer'),
     taskReminderCheck: document.getElementById('taskReminderCheck'),
 
+    // Audio & Sound Controls
+    soundToggleBtn: document.getElementById('soundToggleBtn'),
+    soundIcon: document.getElementById('soundIcon'),
+    soundEnabledInput: document.getElementById('soundEnabledInput'),
+
     // Security Verification Modal
     menuResetTodayBtn: document.getElementById('menuResetTodayBtn'),
     securityResetModal: document.getElementById('securityResetModal'),
@@ -236,8 +242,9 @@
     return { hours: remainingHours, text: formatted, status: 'Active Alertness' };
   }
 
-  // --- AUDIO SYNTHESIS CHIMES (Subtle & Zero External Dependencies) ---
+  // --- AUDIO SYNTHESIS CHIMES & ALERTS (Zero External Dependencies) ---
   function playNotificationChime(type) {
+    if (state.soundEnabled === false) return;
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return;
@@ -247,7 +254,50 @@
       }
       const now = ctx.currentTime;
 
-      if (type === 'reminder') {
+      if (type === 'caution') {
+        // Warning Alert: Two pulsing cautionary tones at 540Hz & 460Hz (Approaching Limit 70%-99%)
+        [0, 0.22].forEach((offset) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(540, now + offset);
+          osc.frequency.exponentialRampToValueAtTime(460, now + offset + 0.15);
+          gain.gain.setValueAtTime(0.08, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.18);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.18);
+        });
+      } else if (type === 'danger') {
+        // Urgent 100% Safety Alarm: 3 rapid high-urgency siren pulses (100% Limit Reached)
+        [0, 0.2, 0.4].forEach((offset) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(820, now + offset);
+          osc.frequency.linearRampToValueAtTime(620, now + offset + 0.14);
+          gain.gain.setValueAtTime(0.12, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.16);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.16);
+        });
+      } else if (type === 'coffee') {
+        // Cozy coffee brewing drop / pour blip
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(360, now);
+        osc.frequency.exponentialRampToValueAtTime(520, now + 0.12);
+        gain.gain.setValueAtTime(0.06, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.22);
+      } else if (type === 'reminder') {
         // Soft ascending two-tone reminder chime: D5 (587Hz) -> A5 (880Hz)
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -462,6 +512,22 @@
 
     // 5. Render Coffee History Log Modal
     renderCoffeeHistory();
+
+    // 6. Audio / Sound Alert Button state
+    if (el.soundIcon && el.soundToggleBtn) {
+      if (state.soundEnabled !== false) {
+        el.soundIcon.textContent = '🔊';
+        el.soundToggleBtn.title = 'Sound alerts: ON (Click to mute)';
+        el.soundToggleBtn.classList.remove('muted');
+      } else {
+        el.soundIcon.textContent = '🔇';
+        el.soundToggleBtn.title = 'Sound alerts: MUTED (Click to unmute)';
+        el.soundToggleBtn.classList.add('muted');
+      }
+    }
+    if (el.soundEnabledInput) {
+      el.soundEnabledInput.checked = state.soundEnabled !== false;
+    }
   }
 
   // --- SAFETY THRESHOLD LOGIC (As requested: 100% turns RED) ---
@@ -539,6 +605,11 @@
     const currentAlertLevel = isExceeded ? 'danger' : (isCaution ? 'caution' : 'safe');
     if (currentAlertLevel !== lastAlertLevel) {
       alertBannerDismissed = false; // New threshold reached, show banner again
+      if (currentAlertLevel === 'danger') {
+        playNotificationChime('danger');
+      } else if (currentAlertLevel === 'caution' && lastAlertLevel === 'safe') {
+        playNotificationChime('caution');
+      }
       lastAlertLevel = currentAlertLevel;
     }
 
@@ -715,10 +786,24 @@
 
     if (percentage >= 100) {
       showEmergencyAlert();
+    } else if (percentage >= 70) {
+      playNotificationChime('caution');
+      showToastNotification({
+        type: 'reminder',
+        icon: '⚠️',
+        badge: 'Caution: 70%+ Limit',
+        title: 'Approaching Daily Coffee Target',
+        message: `Intake reached ${percentage}% (${state.currentCaffeineMg}mg / ${state.dailyMaxMg}mg). Time to slow down!`,
+        note: 'Drink a glass of water to balance your hydration.',
+        duration: 4500
+      });
+    } else {
+      playNotificationChime('coffee');
     }
   }
 
   function showEmergencyAlert() {
+    playNotificationChime('danger');
     if (el.emergencyMgDisplay) el.emergencyMgDisplay.textContent = `${state.currentCaffeineMg}mg`;
     el.emergencyOverlay.classList.remove('hidden');
   }
@@ -808,6 +893,7 @@
     el.studentNameInput.value = state.studentName;
     el.dailyMaxInput.value = state.dailyMaxMg;
     el.safeCeilingInput.value = state.safeCeilingMg;
+    if (el.soundEnabledInput) el.soundEnabledInput.checked = state.soundEnabled !== false;
     el.profileModal.classList.remove('hidden');
   });
 
@@ -823,9 +909,38 @@
     state.studentName = name;
     state.dailyMaxMg = dailyMax;
     state.safeCeilingMg = safeCeiling;
+    if (el.soundEnabledInput) state.soundEnabled = el.soundEnabledInput.checked;
     saveState();
     renderApp();
     closeAllModals();
+  });
+
+  // Sound Toggle Button in Header Navigation
+  el.soundToggleBtn?.addEventListener('click', () => {
+    state.soundEnabled = !(state.soundEnabled !== false);
+    saveState();
+    renderApp();
+
+    if (state.soundEnabled) {
+      playNotificationChime('caution');
+      showToastNotification({
+        type: 'reminder',
+        icon: '🔊',
+        badge: 'SOUND ALERTS ON',
+        title: 'Audio Alerts Enabled',
+        message: 'Warning beeps will sound when nearing limits (70%) or hitting 100%.',
+        duration: 3000
+      });
+    } else {
+      showToastNotification({
+        type: 'reminder',
+        icon: '🔇',
+        badge: 'SOUND MUTED',
+        title: 'Sound Alerts Muted',
+        message: 'Audio warnings silenced for quiet study sessions and libraries.',
+        duration: 3000
+      });
+    }
   });
 
   // --- SECURITY RESET VERIFICATION LOGIC ---

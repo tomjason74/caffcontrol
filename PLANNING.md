@@ -98,6 +98,13 @@ During the interactive design interview, each branch of the architecture and use
   - **Task Completion Celebration**: Marking a task as finished triggers a congratulatory notification showing live workload progress (e.g. `2 of 3 Completed (67%)`), celebratory audio feedback, and an all-tasks completed reward badge when reaching 100%.
   - **Periodic Study Reminder Ticker**: Regular checks remind students of pending tasks due Today so academic deadlines stay top of mind while pacing coffee intake.
 
+### Decision 12: Caffeine Intake Audio Warnings & Limit Alarms
+- **Agreed Decision**:
+  - **Nearing Limit Warning Sound (70% - 99%)**: Two distinct cautionary warning beeps pulse when coffee intake approaches the student's daily target, paired with an amber toast advising the student to pace intake and drink water.
+  - **100% Emergency Alarm Sound (100%+)**: A rapid, multi-pulse emergency safety siren plays when safe daily caffeine is reached, reinforcing the emergency red alert modal.
+  - **Zero-Dependency Web Audio Synthesis**: Synthesized via browser Web Audio API, functioning 100% offline with no external MP3 dependencies.
+  - **Quick Sound Mute / Toggle**: Students studying in quiet libraries or classrooms can toggle sound ON/OFF with a single tap of the `🔊 / 🔇` button in the navigation bar or in Profile Settings.
+
 ---
 
 ## 3. Mathematical Formulas & Scientific Models

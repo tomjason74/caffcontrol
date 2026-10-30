@@ -7,12 +7,16 @@ CaffControl is a web-based application designed specifically for students to mon
 
 ## 📌 Overview & Features
 
-### 1. Caffeine Intake Meter (Safety Thresholds)
+### 1. Caffeine Intake Meter (Safety Thresholds & Audio Alarms)
 - **Percentage-based monitoring**: Measures daily coffee caffeine intake against the student's daily safe target limit (default `215mg`, with `400mg` upper health ceiling).
 - **Dynamic visual state feedback**:
   - **Safe (<70%)**: Warm coffee amber gradient with steam animation above the cup.
   - **Caution (70% - 99%)**: Golden-orange warning state advising pacing.
   - **100%+ Red Alert**: When intake hits 100%, the radial gauge and stats turn **flashing RED**, triggering an emergency modal and banner advising the student that their safe intake has been reached and to switch to water.
+- **Audio Warnings & Limit Alarms**:
+  - **Nearing Limit Warning (70%-99%)**: Pulsing caution warning tone plays when approaching daily target.
+  - **100% Emergency Alarm**: Urgent multi-pulse siren sounds when reaching maximum safe intake.
+  - **Quick Library Mute**: Top nav button (`🔊 / 🔇`) allows one-tap silencing for study halls and libraries.
 
 ### 2. Est. Boost Duration
 - Live dynamic timer calculating remaining hours of active alertness based on coffee timestamp and caffeine metabolization (e.g. 3.5 hrs for standard intake, scaling with dose).

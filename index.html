@@ -69,11 +69,16 @@
           <span class="brand-name">Caff<span class="brand-highlight">Control</span></span>
         </div>
 
-        <button class="nav-btn menu-btn" id="openMenuBtn" aria-label="Open Menu and History">
-          <svg viewBox="0 0 24 24" width="24" height="24">
-            <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>
-          </svg>
-        </button>
+        <div class="nav-actions-group">
+          <button class="nav-btn sound-btn" id="soundToggleBtn" aria-label="Toggle Sound Effects" title="Sound alerts: ON">
+            <span id="soundIcon" style="font-size: 1.1rem;">🔊</span>
+          </button>
+          <button class="nav-btn menu-btn" id="openMenuBtn" aria-label="Open Menu and History">
+            <svg viewBox="0 0 24 24" width="24" height="24">
+              <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/>
+            </svg>
+          </button>
+        </div>
       </nav>
 
       <!-- Toast Notification Container (In-App Alert & Reminder Toasts) -->
@@ -461,6 +466,16 @@
             <label for="safeCeilingInput">Safe Upper Health Ceiling (mg)</label>
             <input type="number" id="safeCeilingInput" min="100" max="500" value="400" required>
             <small class="field-hint">Exceeding this triggers the glowing red safety alarm.</small>
+          </div>
+
+          <div class="form-group task-reminder-row" style="margin-top: 4px;">
+            <label class="task-reminder-checkbox-label" for="soundEnabledInput">
+              <input type="checkbox" id="soundEnabledInput" checked>
+              <span class="reminder-label-text">
+                <strong>🔊 Sound Alerts &amp; Limit Alarms</strong>
+                <small>Audio warning beeps when nearing (70%) or reaching (100%) safe limits</small>
+              </span>
+            </label>
           </div>
 
           <div class="settings-danger-zone">
